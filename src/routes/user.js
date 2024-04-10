@@ -1,7 +1,9 @@
 const express = require("express");
 const userSchema = require("../models/user");
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
+const secretKey = crypto.randomBytes(32).toString('hex');
 const router = express.Router();
 
 // create user
@@ -34,7 +36,14 @@ router.post("/authenticate", (req, res) => {
         return res.status(401).json({ message: "Incorrect password" });
       }
       // Si la contraseña es correcta, enviar respuesta de éxito
-      res.status(200).json({ message: "Logged in successfully" });
+      //res.status(200).json({ message: "Logged in successfully" });
+
+      // Si la contraseña es correcta, generar un token JWT
+      const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
+
+      // Enviar el token JWT como respuesta
+      res.status(200).json({ message: "Logged in successfully", token });
+      
     });
   });
 });

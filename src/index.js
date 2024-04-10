@@ -2,10 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const userRoute = require("./routes/user");
+const jwt = require('jsonwebtoken');
 
 // settings
 const app = express();
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 8080;
 
 // middlewares
 app.use(express.json());
