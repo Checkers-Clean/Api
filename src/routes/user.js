@@ -43,7 +43,6 @@ router.post("/authenticate", (req, res) => {
 
       // Enviar el token JWT como respuesta
       res.status(200).json({ message: "Logged in successfully", token });
-      
     });
   });
 });
