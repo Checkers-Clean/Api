@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 // settings
 const app = express();
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 80;
 
 // middlewares
 app.use(express.json());
