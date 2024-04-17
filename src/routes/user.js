@@ -19,6 +19,7 @@ router.post("/users", (req, res) => {
 // login user
 router.post("/authenticate", (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
 
   // Buscar el usuario por su correo electrónico
   userSchema.findOne({ email }, (err, user) => {
