@@ -1,19 +1,61 @@
 const express = require("express");
+const https = require("https");
+const fs = require("fs");
 const userSchema = require("../models/user");
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-//const secretKey = process.env.JWT_SECRET;
 const secretKey = "d4cc015d7c0ddbf6c07893515c5e7d5b9240e28e9433cd9a1960591fd97606a0";
 const router = express.Router();
 
+////////////////////////////////////////////////////////////////
+
+router.get("/getDictionaryEsp", (req, res) => {
+  try {
+    // Lee el archivo JSON del diccionario usando una ruta relativa
+    const dictionaryData = fs.readFileSync("data/esp.json", 'utf8');
+    
+    // Convierte el JSON en un objeto JavaScript
+    const dictionary = JSON.parse(dictionaryData);
+    
+    // Configura las cabeceras de la respuesta
+    res.setHeader('Content-Type', 'application/json');
+
+    // Envía el JSON del diccionario como respuesta
+    res.send(dictionary);
+  } catch (error) {
+    console.error('Error al leer el diccionario:', error);
+    res.status(500).send('Error interno del servidor');
+  }
+});
+
+router.get("/getLanguages", (req, res) => {
+  try {
+    // Datos de ejemplo de los idiomas
+    const languagesData = {
+      languages: ['english', 'spanish', 'catalan']
+    };
+
+    // Configura las cabeceras de la respuesta
+    res.setHeader('Content-Type', 'application/json');
+
+    // Envía los datos de los idiomas como respuesta
+    res.send(languagesData);
+  } catch (error) {
+    console.error('Error al obtener los idiomas:', error);
+    res.status(500).send('Error interno del servidor');
+  }
+});
+
+
+///////////////////////////////////////////////////////////////
 // create user
 router.post("/users", (req, res) => {
   const user = userSchema(req.body);
   user
     .save()
-    .then((data) => res.status(200).json(data)) 
-    .catch((error) => res.status(500).json({ message: error })); 
+    .then((data) => res.status(200).json(data))
+    .catch((error) => res.status(500).json({ message: error }));
 });
 
 // login user
@@ -40,8 +82,8 @@ router.post("/authenticate", (req, res) => {
 
       // Si la contraseña es correcta, generar un token JWT
       const token = jwt.sign(
-        {userId: user._id }, 
-        secretKey, 
+        {userId: user._id },
+        secretKey,
         { expiresIn: '1h' });
 
       // Enviar el token JWT como respuesta
@@ -50,32 +92,23 @@ router.post("/authenticate", (req, res) => {
   });
 });
 
-/*
-// Ejemplo de uso de middleware en una ruta protegida
-router.get('/protected-route', authenticateToken, (req, res) => {
-  // El usuario está autenticado, puedes acceder a req.userId para obtener su ID de usuario
-  res.json({ message: 'Acceso concedido' });
-});
-*/
-
 // Ejemplo de uso de middleware en una ruta protegida
 router.get('/protected-route', (req, res) => {
-  try{
+  try {
     // El usuario está autenticado, puedes acceder a req.userId para obtener su ID de usuario
-    const token = req.headers.authorization.split(' ')[1]; // Corrección aquí
+    const token = req.headers.authorization.split(' ')[1];
     const payload = jwt.verify(token, secretKey);
 
-    if (Date.now() >= payload.exp * 1000) { // Corrección de la comparación aquí
+    if (Date.now() >= payload.exp * 1000) {
       return res.status(401).json({ message: 'Token expired' });
-    }    
+    }
 
     res.status(200).json({ message: "Acceso concedido" });
-  }catch(error){
+  } catch(error) {
     res.status(401).json({ message: 'Token invalido' });
   }
 });
 
-/////////////////////////////////////////////////////////////////////////////////////////
 // get all users
 router.get("/users", (req, res) => {
   userSchema
@@ -111,27 +144,5 @@ router.put("/users/:id", (req, res) => {
     .then((data) => res.json(data))
     .catch((error) => res.json({ message: error }));
 });
-
-
-// Middleware de autenticación
-function authenticateToken(req, res, next) {
-  const token = req.headers['authorization'];
-
-  if (!token) {
-    console.log('Token no proporcionado');
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      console.log('Error al verificar el token:', err.message);
-      return res.status(403).json({ message: 'Forbidden' });
-    }
-    console.log('Token verificado:', decoded);
-    req.userId = decoded.userId;
-    next();
-  });
-}
-
 
 module.exports = router;

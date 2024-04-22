@@ -1,5 +1,5 @@
 ###
-POST http://localhost:9000/api/users HTTP/1.1
+POST https://localhost:443/api/users HTTP/1.1
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
 }
 
 ### 
-POST http://localhost:9000/api/authenticate HTTP/1.1
+POST https://localhost:443/api/authenticate HTTP/1.1
 Content-Type: application/json
 
 {
@@ -18,7 +18,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:9000/api/authenticate HTTP/1.1
+POST https://localhost:443/api/authenticate HTTP/1.1
 Content-Type: application/json
 
 {
@@ -27,21 +27,27 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:9000/api/protected-route HTTP/1.1
+GET https://localhost:443/api/protected-route HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjE2YmM3Mjc5MDBhNmRkMDA0ZTk4YzEiLCJpYXQiOjE3MTMxODE3ODQsImV4cCI6MTcxMzE4NTM4NH0.pgAIPkYlVQeh8GmGLxuuG2hu9LR3dL9okL_kthvOKng
 
 ###
-GET http://localhost:9000/api/users HTTP/1.1
+GET https://localhost:443/api/getDictionaryEsp HTTP/1.1
 
 ###
-GET http://localhost:9000/api/users/6137e2bb2e329eb206b0073e HTTP/1.1
+GET https://localhost:443/api/getLanguages HTTP/1.1
 
 ###
-DELETE http://localhost:9000/api/users/6137e1725461c36eba8b2ce4 HTTP/1.1
+GET http://localhost:443/api/users HTTP/1.1
 
 ###
-PUT http://localhost:9000/api/users/6137e2412e329eb206b0073c HTTP/1.1
+GET http://localhost:443/api/users/6137e2bb2e329eb206b0073e HTTP/1.1
+
+###
+DELETE http://localhost:443/api/users/6137e1725461c36eba8b2ce4 HTTP/1.1
+
+###
+PUT http://localhost:443/api/users/6137e2412e329eb206b0073c HTTP/1.1
 Content-Type: application/json
 
 {

@@ -1,12 +1,13 @@
 const express = require("express");
+const https = require("https");
+const fs = require("fs");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const userRoute = require("./routes/user");
-const jwt = require('jsonwebtoken');
 
 // settings
 const app = express();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 443; // Cambia el puerto a 443 para HTTPS
 
 // middlewares
 app.use(express.json());
@@ -23,5 +24,13 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((error) => console.error(error));
 
-// server listening
-app.listen(port, () => console.log("Server listening to", port));
+// Configura opciones para el servidor HTTPS
+const options = {
+  key: fs.readFileSync("server.key"), 
+  cert: fs.readFileSync("server.cert")
+};
+
+// Crea el servidor HTTPS
+https.createServer(options, app).listen(port, () => {
+  console.log("Server listening to", port);
+});
