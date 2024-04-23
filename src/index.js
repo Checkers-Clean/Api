@@ -2,21 +2,19 @@ const express = require("express");
 const https = require("https");
 const fs = require("fs");
 const mongoose = require("mongoose");
+const socketIo = require("socket.io");
+const userRoute = require("./api/routes/user");
+const socketServer = require("./sockets/socketServer");
+
 require("dotenv").config();
-const userRoute = require("./routes/user");
 
 // settings
 const app = express();
-const port = process.env.PORT || 443; // Cambia el puerto a 443 para HTTPS
+const port = process.env.PORT || 443;
 
 // middlewares
 app.use(express.json());
 app.use("/api", userRoute);
-
-// routes
-app.get("/", (req, res) => {
-  res.send("Welcome to my API");
-});
 
 // mongodb connection
 mongoose
@@ -31,6 +29,13 @@ const options = {
 };
 
 // Crea el servidor HTTPS
-https.createServer(options, app).listen(port, () => {
+const server = https.createServer(options, app);
+
+// Inicia el servidor HTTPS
+server.listen(port, () => {
   console.log("Server listening to", port);
+
+  // Inicia el servidor de sockets
+  const io = socketIo(server);
+  socketServer(io);
 });
