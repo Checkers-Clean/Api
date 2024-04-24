@@ -8,46 +8,6 @@ const crypto = require('crypto');
 const secretKey = "d4cc015d7c0ddbf6c07893515c5e7d5b9240e28e9433cd9a1960591fd97606a0";
 const router = express.Router();
 
-////////////////////////////////////////////////////////////////
-
-router.get("/getDictionaryEsp", (req, res) => {
-  try {
-    // Lee el archivo JSON del diccionario usando una ruta relativa
-    const dictionaryData = fs.readFileSync("data/esp.json", 'utf8');
-    
-    // Convierte el JSON en un objeto JavaScript
-    const dictionary = JSON.parse(dictionaryData);
-    
-    // Configura las cabeceras de la respuesta
-    res.setHeader('Content-Type', 'application/json');
-
-    // Envía el JSON del diccionario como respuesta
-    res.send(dictionary);
-  } catch (error) {
-    console.error('Error al leer el diccionario:', error);
-    res.status(500).send('Error interno del servidor');
-  }
-});
-
-router.get("/getLanguages", (req, res) => {
-  try {
-    // Datos de ejemplo de los idiomas
-    const languagesData = {
-      languages: ['english', 'spanish', 'catalan']
-    };
-
-    // Configura las cabeceras de la respuesta
-    res.setHeader('Content-Type', 'application/json');
-
-    // Envía los datos de los idiomas como respuesta
-    res.send(languagesData);
-  } catch (error) {
-    console.error('Error al obtener los idiomas:', error);
-    res.status(500).send('Error interno del servidor');
-  }
-});
-
-///////////////////////////////////////////////////////////////
 // create user
 router.post("/users", (req, res) => {
   const user = userSchema(req.body);
