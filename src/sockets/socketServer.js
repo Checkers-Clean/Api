@@ -28,7 +28,8 @@ module.exports = function(io) {
       const gameData = {
         state: "waiting_for_opponent", 
         winner_id: null, 
-        players: [userId], 
+        players: { player1: userId },
+        socket_ids: { player1: socket.id } // Agregar el socket.id del jugador 1
       };
 
       Game.create(gameData)
@@ -42,6 +43,7 @@ module.exports = function(io) {
         });
     });
 
+    /*
     socket.on("unirse-a-sala", (data) => {
       console.log("Mensaje recibido en 'unirse-a-sala':", data);
     
@@ -89,8 +91,71 @@ module.exports = function(io) {
           io.to(socket.id).emit("error-unirse-sala", "Error al unirse a la sala.");
         });
     });
-        
+    */
 
+    socket.on("unirse-a-sala", (data) => {
+      console.log("Mensaje recibido en 'unirse-a-sala':", data);
+      
+      const { id_game: gameId, token } = data;
+      console.log("Token recibido:", token);
+      
+      const userId = getUserIdFromToken(token, secretKey);
+      console.log("UserID obtenido del token:", userId);
+      
+      if (!userId) {
+        console.log("Error: Usuario no autenticado.");
+        io.to(socket.id).emit("error-unirse-sala", "Error: Usuario no autenticado.");
+        return;
+      }
+    
+      console.log("Usuario autenticado. ID:", userId);
+      
+      Game.findById(gameId)
+        .then((game) => {
+          if (!game) {
+            console.log("Error: Juego no encontrado.");
+            io.to(socket.id).emit("error-unirse-sala", "Error: Juego no encontrado.");
+            return;
+          }
+          
+          console.log("Juego encontrado. ID:", game._id);
+          
+          if (game.state !== "waiting_for_opponent") {
+            console.log("Error: El juego no está disponible para unirse en este momento.");
+            io.to(socket.id).emit("error-unirse-sala", "Error: El juego no está disponible para unirse en este momento.");
+            return;
+          }
+          
+          console.log("El juego está disponible para unirse. Estado:", game.state);
+          
+          // Insertar el ID del usuario como nuevo participante en la sala del juego
+          game.players.player2 = userId; // Establecer al nuevo jugador como player2
+          // Establecer el socket ID del jugador
+          game.socket_ids.player2 = socket.id;
+          // Cambiar el estado del juego a "jugando"
+          game.state = "jugando";
+          return game.save();
+        })
+        .then((updatedGame) => {
+          if (updatedGame) {
+            console.log("El usuario se ha unido exitosamente a la sala de juego. ID del juego:", updatedGame._id);
+            io.to(socket.id).emit("jugador-unido-sala", updatedGame._id);
+        
+            // Verificar si hay dos jugadores en la sala y el juego está en estado "jugando"
+            if (updatedGame.players.player2 && updatedGame.state === "jugando") {
+              console.log("Dos jugadores en la sala y juego en estado 'jugando'. Iniciando partida.");
+              // Enviar un mensaje a todos los jugadores en la sala
+              io.to(updatedGame.socket_ids.player1).emit("inicio-de-partida");
+              io.to(updatedGame.socket_ids.player2).emit("inicio-de-partida");
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error al unirse a la sala:", error);
+          io.to(socket.id).emit("error-unirse-sala", "Error al unirse a la sala.");
+        });
+    });
+    
     // Salir de la sala
     socket.on("salir-de-sala", (nombreSala) => {
       if (salas[nombreSala]) {

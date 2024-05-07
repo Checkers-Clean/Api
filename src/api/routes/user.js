@@ -20,7 +20,6 @@ router.post("/users", (req, res) => {
 // login user
 router.post("/authenticate", (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
   // Buscar el usuario por su correo electrónico
   userSchema.findOne({ email }, (err, user) => {
@@ -41,15 +40,17 @@ router.post("/authenticate", (req, res) => {
 
       // Si la contraseña es correcta, generar un token JWT
       const token = jwt.sign(
-        {userId: user._id },
+        { userId: user._id, email: user.email }, // Agrega el email al objeto del token
         secretKey,
-        { expiresIn: '1h' });
+        //{ expiresIn: '1h' }
+        );
 
       // Enviar el token JWT como respuesta
       res.status(200).json({ message: "Logged in successfully", token });
     });
   });
 });
+
 
 // Ejemplo de uso de middleware en una ruta protegida
 router.get('/protected-route', (req, res) => {
