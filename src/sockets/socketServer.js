@@ -81,9 +81,9 @@ module.exports = function(io) {
               io.to(socket.id).emit("error-unirse-sala", "Error: El juego no está disponible para unirse en este momento.");
               return;
           }
-  
+
           console.log("El juego está disponible para unirse. Estado:", game.state);
-  
+
           // Insertar el ID del usuario como nuevo participante en la sala del juego
           game.players.player2 = userId; // Establecer al nuevo jugador como player2
           // Establecer el socket ID del jugador
@@ -91,7 +91,7 @@ module.exports = function(io) {
           // Cambiar el estado del juego a "jugando"
           game.state = "jugando";
           const updatedGame = await game.save();
-  
+
           if (updatedGame) {
               console.log("El usuario se ha unido exitosamente a la sala de juego. ID del juego:", updatedGame._id);
               io.to(socket.id).emit("jugador-unido-sala", updatedGame._id);
@@ -103,8 +103,8 @@ module.exports = function(io) {
   
               // Crear el JSON con los correos electrónicos de los jugadores
               const playersJson = {
-                  "red": player1Email,
-                  "black": player2Email
+                  "player1": player1Email,
+                  "player2": player2Email
               };
               
               const updatedToken = addIdGameToToken(token, gameId);
@@ -202,10 +202,8 @@ module.exports = function(io) {
   function addSocketIdToToken(token, socketId) {
     try {
       const decodedToken = jwt.verify(token, secretKey);
-      
       decodedToken.socketId = socketId;
-      
-      return jwt.sign(decodedToken, secretKey, { expiresIn: '1h' });
+      return jwt.sign(decodedToken, secretKey);
     } catch (error) {
       console.error("Error al decodificar el token:", error);
       return null;
@@ -216,7 +214,7 @@ module.exports = function(io) {
     try {
       const decodedToken = jwt.verify(token, secretKey);
       decodedToken.id_game = gameId;
-      return jwt.sign(decodedToken, secretKey, { expiresIn: '1h' });
+      return jwt.sign(decodedToken, secretKey);
     } catch (error) {
       console.error("Error al decodificar el token:", error);
       return null;
